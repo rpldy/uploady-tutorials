@@ -12,10 +12,9 @@
     "start": "yarn storybook"
   },
   "dependencies": {
-    "@rpldy/retry": "^0.13.4",
-    "@rpldy/upload-button": "^0.13.4",
-    "@rpldy/upload-preview": "^0.13.4",
-    "@rpldy/uploady": "^0.13.4",
+    "@rpldy/upload-button": "^0.14.1",
+    "@rpldy/upload-preview": "^0.14.1",
+    "@rpldy/uploady": "^0.14.1",
     "framer-motion": "^4.1.17",
     "lodash": "^4.17.21",
     "polished": "^4.1.3",

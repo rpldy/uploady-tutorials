@@ -96,5 +96,5 @@ export const FourthTutorial = () => {
 FourthTutorial.description = "Using Uploady's event hooks - Item Finish";
 
 export default {
-	title: "Welcome to Uploady",
+	title: "Tutorials/Basics/1. Welcome to Uploady",
 };

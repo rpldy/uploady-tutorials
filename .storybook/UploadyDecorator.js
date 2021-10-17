@@ -15,16 +15,16 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-	align-items: center;
+  align-items: center;
   padding: 10px 40px;
-	box-sizing: border-box;
+  box-sizing: border-box;
 `;
 
 const Intro = styled.header`
   display: flex;
   flex-direction: column;
-	align-items: center;
-	justify-content: center;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Title = styled.h3`
@@ -44,7 +44,7 @@ const Divider = styled.hr`
 `;
 
 const StoryName = styled.h2`
-	margin: 0 6px 0 0;
+  margin: 0 6px 0 0;
 `;
 
 const StoryDescription = styled.span`
@@ -52,39 +52,44 @@ const StoryDescription = styled.span`
 `;
 
 const StoryDetails = styled.div`
-	display: flex;
-	justify-content: flex-start;
-	align-items: baseline;
-	margin-bottom: 25px;
-	width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  margin-bottom: 25px;
+  width: 100%;
   background-color: #2d343b6e;
   padding: 4px 0;
 `;
 
 const StoryGlobalStyle = createGlobalStyle`
-	body {
+  body {
     color: ${({ theme }) => theme.textColor};
   }
-	
-	button {
-		background-color: ${({ theme }) => theme.actionBackground};
+
+  button {
+    background-color: ${({ theme }) => theme.actionBackground};
     color: ${({ theme }) => theme.textColor};
-		border-color: ${({ theme }) => opacify(0.5, theme.colorPrimary)};
-		border-style: groove;
+    border-color: ${({ theme }) => opacify(0.5, theme.colorPrimary)};
+    border-style: groove;
     box-shadow: 0 0 5px 0 ${({ theme }) => theme.colorSecondary};
-		min-width: 200px;
-		max-width: 300px;
-		padding: 10px 0;
-		font-size: 1.2rem;
-		cursor: pointer;
-	}
+    min-width: 200px;
+    padding: 10px 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+
+    &:disabled {
+      background-color: ${({ theme }) => theme.disabledActionBackground};
+      color: ${({ theme }) => theme.colorDisabled};
+      cursor: progress;
+    }
+  }
 `;
 
 const StoryWrapper = styled.div`
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const UploadyDecorator = (Story, context) => {
@@ -92,7 +97,7 @@ const UploadyDecorator = (Story, context) => {
 
 	return (
 		<ThemeProvider theme={uploadyThemeDark}>
-			<StoryGlobalStyle />
+			<StoryGlobalStyle/>
 			<Container>
 				<Intro>
 					<StyledLogo src={Logo}/>
