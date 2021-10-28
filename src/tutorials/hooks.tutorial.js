@@ -114,5 +114,5 @@ export const FourthTutorial = () => {
 FourthTutorial.description = "Custom upload button using Uploady's context API";
 
 export default {
-	title: "Tutorials/Basics/2. Uploady Hooks",
+	title: "Tutorials/1. Basics/2. Uploady Hooks",
 };
