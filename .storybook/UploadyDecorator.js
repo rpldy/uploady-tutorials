@@ -93,7 +93,7 @@ const StoryWrapper = styled.div`
 `;
 
 const UploadyDecorator = (Story, context) => {
-	const { story: storyName } = context;
+	const { story: storyName, originalStoryFn: orgStory } = context;
 
 	return (
 		<ThemeProvider theme={uploadyThemeDark}>
@@ -106,7 +106,8 @@ const UploadyDecorator = (Story, context) => {
 				<Divider/>
 				<StoryDetails>
 					<StoryName>{storyName} - </StoryName>
-					<StoryDescription>{context.originalStoryFn.description}</StoryDescription>
+					{orgStory.description &&
+						<StoryDescription>{orgStory.description}</StoryDescription>}
 				</StoryDetails>
 				<StoryWrapper>
 					<Story/>
