@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Uploady, {
 	useItemProgressListener,
-	useItemFinishListener, useItemStartListener,
+	useItemFinishListener,
+	useItemStartListener,
+	useBatchProgressListener,
+	useBatchStartListener,
 } from "@rpldy/uploady";
 import UploadButton from "@rpldy/upload-button";
 import { Circle } from "rc-progress";
@@ -19,7 +22,7 @@ const TextualItemProgress = () => {
 	});
 
 	useItemFinishListener(() => {
-		setStatus("Finished");
+		setStatus(() => "Finished");
 	});
 
 	return <UploadStatus>Upload Status: {status}</UploadStatus>;
@@ -82,6 +85,106 @@ export const SecondTutorial = () => {
 };
 
 SecondTutorial.description = "Visual item upload progress";
+
+const StyledCircleWithSize = styled(Circle)`
+  width: ${({ $size }) => $size}px;
+  height: ${({ $size }) => $size}px;
+  margin-top: 20px;
+`;
+
+const CircleProgress = ({
+	                        progress,
+	                        color = {
+		                        "0%": "rgba(31,104,132,0.95)",
+		                        "100%": "rgba(2,32,53,1)",
+	                        },
+	                        size = 90,
+                        }) => (
+	<StyledCircleWithSize
+		strokeWidth={8}
+		percent={progress}
+		gapPosition="top"
+		gapDegree={20}
+		trailColor="rgb(175,180,176)"
+		strokeColor={color}
+		$size={size}
+	/>
+);
+
+const BatchCircleProgress = ({ progress }) =>
+	<CircleProgress
+		progress={progress}
+		color={{
+			"0%": "rgba(86,144,79,0.95)",
+			"100%": "rgb(11,74,18)",
+		}}
+		size={120}
+	/>;
+
+const ProgressContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+`;
+
+const CirclesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+	align-self: flex-start;
+  align-items: center;
+	margin-right: 10px;
+`;
+
+const VisualItemAndBatchProgress = () => {
+	const [batchProgress, setBatchProgress] = useState(0);
+	const [itemsProgress, setItemsProgress] = useState({});
+
+	useBatchStartListener(() => {
+		setBatchProgress(() => 1);
+		setItemsProgress(() => ({}));
+	});
+
+	useBatchProgressListener((batch) => {
+		setBatchProgress(() => batch.completed);
+	});
+
+	useItemStartListener((item) => {
+		setItemsProgress((items) =>
+			({ ...items, ...{ [item.id]: 1 } }));
+	});
+
+	useItemProgressListener((item) => {
+		setItemsProgress((items) =>
+			({ ...items, ...{ [item.id]: item.completed } }));
+	});
+
+	return (<ProgressContainer>
+		<CirclesContainer>
+			<BatchCircleProgress progress={batchProgress}/>
+		</CirclesContainer>
+		<CirclesContainer>
+			{Object.entries(itemsProgress)
+				.map(([id, progress]) =>
+					<CircleProgress key={id} progress={progress}/>)}
+		</CirclesContainer>
+	</ProgressContainer>);
+};
+
+export const ThirdTutorial = () => {
+	return (
+		<Uploady
+			concurrent
+			destination={{ url: process.env.UPLOAD_URL }}
+		>
+			<UploadButton>Upload File(s)</UploadButton>
+			<VisualItemAndBatchProgress/>
+		</Uploady>
+	);
+};
+
+ThirdTutorial.description = "Visual item & batch upload progress";
 
 export default {
 	title: "Tutorials/1. Basics/3. Upload Progress",
