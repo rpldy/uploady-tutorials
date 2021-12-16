@@ -10,5 +10,17 @@ module.exports = {
 	      "docs": false,
 		  }
 	  },
-  ]
+  ],
+
+	features: {
+		postcss: false,
+		babelModeV7: true,
+		storyStoreV7: true
+	},
+
+	core: {
+		builder: "webpack5"
+	},
+
+	framework: "@storybook/react"
 }
