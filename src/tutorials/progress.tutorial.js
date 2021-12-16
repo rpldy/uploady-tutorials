@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Uploady, {
-	useItemProgressListener,
-	useItemFinishListener,
-	useItemStartListener,
-	useBatchProgressListener,
 	useBatchStartListener,
+	useBatchProgressListener,
+	useItemFinishListener,
+	useItemProgressListener,
+	useItemStartListener,
 } from "@rpldy/uploady";
 import UploadButton from "@rpldy/upload-button";
 import { Circle } from "rc-progress";
@@ -25,18 +25,18 @@ const TextualItemProgress = () => {
 		setStatus(() => "Finished");
 	});
 
-	return <UploadStatus>Upload Status: {status}</UploadStatus>;
+	return (
+		<UploadStatus>Upload Status = {status}</UploadStatus>
+	);
 };
 
 export const FirstTutorial = () => {
-	return (
-		<Uploady
-			destination={{ url: process.env.UPLOAD_URL }}
-		>
-			<UploadButton>Upload File(s)</UploadButton>
-			<TextualItemProgress/>
-		</Uploady>
-	);
+	return (<Uploady
+		destination={{ url: process.env.UPLOAD_URL }}
+	>
+		<UploadButton>Upload File(s)</UploadButton>
+		<TextualItemProgress/>
+	</Uploady>);
 };
 
 FirstTutorial.description = "Textual item upload progress";
@@ -58,10 +58,9 @@ const VisualItemProgress = () => {
 		setProgress(() => item.completed);
 	});
 
-	return progress ?
-		<StyledCircle
+	return (
+		progress ? <StyledCircle
 			strokeWidth={8}
-			percent={progress}
 			gapPosition="top"
 			gapDegree={20}
 			trailColor="rgb(175,180,176)"
@@ -69,8 +68,9 @@ const VisualItemProgress = () => {
 				"0%": "rgba(31,104,132,0.95)",
 				"100%": "rgba(2,32,53,1)",
 			}}
-		/> :
-		<UploadStatus>Pending</UploadStatus>;
+			percent={progress}
+		/> : <UploadStatus>Pending</UploadStatus>
+	);
 };
 
 export const SecondTutorial = () => {
@@ -132,9 +132,9 @@ const CirclesContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-	align-self: flex-start;
+  align-self: flex-start;
   align-items: center;
-	margin-right: 10px;
+  margin-right: 10px;
 `;
 
 const VisualItemAndBatchProgress = () => {
@@ -152,7 +152,7 @@ const VisualItemAndBatchProgress = () => {
 
 	useItemStartListener((item) => {
 		setItemsProgress((items) =>
-			({ ...items, ...{ [item.id]: 1 } }));
+			({ ...items, ...{ [item.id]: item.completed } }));
 	});
 
 	useItemProgressListener((item) => {
