@@ -108,7 +108,7 @@ export const FourthTutorial = () => {
 	return (<Uploady
 		destination={{ url: process.env.UPLOAD_URL }}>
 		<CustomUploadWithContext />
-	</Uploady>)
+	</Uploady>);
 };
 
 FourthTutorial.description = "Custom upload button using Uploady's context API";
