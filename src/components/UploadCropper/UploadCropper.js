@@ -8,18 +8,21 @@ const StyledCropper = styled(Cropper)`
   margin: 20px 0;
 `;
 
-const cropImage = (cropper, type) =>
+const cropImage = (cropper, type, name) =>
 	new Promise((resolve) => {
 		cropper
 			.getCroppedCanvas()
-			.toBlob(resolve, type);
+			.toBlob((blob) => {
+				blob.name = name;
+				resolve(blob);
+			}, type);
 	});
 
-const UploadCropper = forwardRef(({ url, type }, ref) => {
+const UploadCropper = forwardRef(({ url, type, name }, ref) => {
 	const cropperRef = useRef(null);
 
 	useImperativeHandle(ref, () => ({
-		cropImage: () => cropImage(cropperRef.current.cropper, type),
+		cropImage: () => cropImage(cropperRef.current.cropper, type, name),
 		removeCrop: () => {
 			cropperRef.current.cropper.clear();
 		},
@@ -32,6 +35,7 @@ const UploadCropper = forwardRef(({ url, type }, ref) => {
 		background={false}
 		modal={false}
 		viewMode={1}
+		zoomable={false}
 		ref={cropperRef}
 	/>;
 });

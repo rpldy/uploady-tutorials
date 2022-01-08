@@ -2,29 +2,25 @@ import React, { memo, useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import Uploady, {
 	useBatchAddListener,
-	useBatchProgressListener,
 	useBatchFinalizeListener,
-	useItemProgressListener,
+	useBatchProgressListener,
 	useItemFinalizeListener,
-
-	withRequestPreSendUpdate,
+	useItemProgressListener,
 	withBatchStartUpdate,
+	withRequestPreSendUpdate,
 } from "@rpldy/uploady";
 import UploadButton from "@rpldy/upload-button";
 import UploadPreview from "@rpldy/upload-preview";
 import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
 import { Line } from "rc-progress";
 import UploadCropper from "../components/UploadCropper";
 
-const PreviewImage = styled.img`
-  margin: 5px;
-  max-width: 600px;
-  max-height: 400px;
-  height: auto;
-`;
-
 const SingleCropContainer = styled.div`
-  width: 600px;
+    width: 600px;
+    display: flex;  
+    flex-direction: column;
+    align-items: center;
 `;
 
 const StyledCropper = styled(Cropper)`
@@ -32,6 +28,13 @@ const StyledCropper = styled(Cropper)`
   max-height: 400px;
   height: auto;
   margin: 20px 0;
+`;
+
+const PreviewImage = styled.img`
+  margin: 5px;
+  max-width: 600px;
+  max-height: 400px;
+  height: auto;
 `;
 
 const StyledProgressLine = styled(Line)`
@@ -49,19 +52,19 @@ const UploadProgress = ({ progress }) => {
 };
 
 const ItemUploadProgress = memo(({ id, show = false }) => {
-	const { completed, state: itemState } = useItemProgressListener(id) || { completed: 0 };
+	const { completed: progress, state: itemState } =
+		useItemProgressListener(id) || { completed: 0 };
 
 	return (show || itemState === "uploading") &&
-		<UploadProgress progress={completed}/>;
+		<UploadProgress progress={progress} />;
 });
 
-const ItemPreviewWithCrop = withRequestPreSendUpdate((props) => {
-	const {
-		id,
-		url,
-		updateRequest,
-		requestData,
-	} = props;
+const ItemPreviewWithCrop = withRequestPreSendUpdate(({
+	id,
+	url,
+	updateRequest,
+	requestData,
+}) => {
 
 	const cropperRef = useRef(null);
 	const [isCropped, setCropped] = useState(null);
@@ -77,30 +80,34 @@ const ItemPreviewWithCrop = withRequestPreSendUpdate((props) => {
 		cropper
 			.getCroppedCanvas()
 			.toBlob((blob) => {
+				blob.name = requestData.items[0].file.name;
 				requestData.items[0].file = blob;
-				updateRequest({ items: requestData.items });
+				updateRequest({ items: requestData.items })
 			}, requestData.items[0].file.type);
 
 		setCroppedImg(cropper.getCroppedCanvas().toDataURL());
 	}, [requestData, updateRequest]);
 
 	return (<SingleCropContainer>
-		{!croppedImg ? (
+		{!croppedImg ?
 			<StyledCropper
-				src={url}
 				initialAspectRatio={16 / 9}
 				autoCrop={false}
+				background={false}
+				modal={false}
+				viewMode={1}
+				zoomable={false}
+				src={url}
 				cropend={onCropEnd}
 				ref={cropperRef}
-			/>
-		) : (
-			<PreviewImage src={croppedImg} alt="cropped img to upload"/>
-		)}
+			/> :
+			<PreviewImage src={croppedImg} alt="cropped img to upload" />
+		}
 
 		{isCropped && !croppedImg ?
-			<button onClick={onUpload}>Upload Selection</button> : null}
+			<button onClick={onUpload}>Upload selection</button> : null}
 
-		{isCropped && <ItemUploadProgress id={id}/>}
+		{isCropped && <ItemUploadProgress id={id} />}
 	</SingleCropContainer>);
 });
 
@@ -112,25 +119,35 @@ export const FirstTutorial = () => {
 		<UploadButton>Select File</UploadButton>
 		<UploadPreview
 			PreviewComponent={ItemPreviewWithCrop}
-		/>
+			/>
 	</Uploady>);
 };
 
 FirstTutorial.description = "Crop single image before uploading";
 
+const QueueContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-const dotCss = css`
-  &:before {
-    content: "";
-    width: 12px;
-    height: 12px;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #3fbdce;
-    border: 1px solid #eeeeee;
-    border-radius: 100%;
+  button {
+    max-width: 300px;
   }
+`;
+
+const MultiCropContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PreviewsContainer = styled.div`
+  display: flex;
+  margin: 20px 0;
+	width: 100%;
+	justify-content: center;
 `;
 
 const ItemPreviewContainer = styled.div`
@@ -144,6 +161,20 @@ const ItemPreviewContainer = styled.div`
 	${StyledProgressLine} {
 		margin-top: 6px;
 	}
+`;
+
+const dotCss = css`
+  &:before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #3fbdce;
+    border: 1px solid #eeeeee;
+    border-radius: 100%;
+  }
 `;
 
 const ItemPreviewImgWrapper = styled.div`
@@ -168,29 +199,38 @@ const ItemPreviewImg = styled.img`
   }
 `;
 
-const ItemPreviewThumb = ({ id, url, onPreviewSelected, isCroppedSet, isFinished, isUploading }) => {
-	const isClickable = !isFinished && !isUploading;
+const ItemPreviewThumb =
+	({
+		 id,
+		 url,
+		 onPreviewSelected,
+		 isCroppedSet,
+		 isFinished,
+		 isUploading,
+	 }) => {
+		const isClickable = !isFinished && !isUploading;
 
-	const onPreviewClick = () => {
-		if (isClickable) {
-			onPreviewSelected({ id, url });
-		}
+		const onPreviewClick = () => {
+			if (isClickable) {
+				onPreviewSelected({ id, url });
+			}
+		};
+
+		return (
+			<ItemPreviewContainer>
+				<ItemPreviewImgWrapper
+					$isCropped={isCroppedSet}
+					$isClickable={isClickable}
+				>
+					<ItemPreviewImg
+						onClick={onPreviewClick}
+						src={url}
+						/>
+				</ItemPreviewImgWrapper>
+				<ItemUploadProgress id={id} show />
+			</ItemPreviewContainer>
+		);
 	};
-
-	return (
-		<ItemPreviewContainer>
-			<ItemPreviewImgWrapper
-				$isCropped={isCroppedSet}
-				$isClickable={isClickable}
-			>
-				<ItemPreviewImg
-					onClick={onPreviewClick}
-					src={url}
-				/>
-			</ItemPreviewImgWrapper>
-			<ItemUploadProgress id={id} show />
-		</ItemPreviewContainer>);
-};
 
 const CropperContainer = styled.div`
   display: flex;
@@ -203,11 +243,6 @@ const CropperForMultiCrop = ({ item, url, setCropForItem }) => {
 	const [isCropped, setIsCropped] = useState(false);
 	const croppingRef = useRef(null);
 
-	console.log("!!! RENDERING CROPPER FOR MULTICROP", {
-		isCropped,
-		croppingRef,
-	});
-
 	const onSaveCrop = async () => {
 		const cropped = await croppingRef.current.cropImage();
 		setCropForItem(item.id, cropped);
@@ -215,6 +250,7 @@ const CropperForMultiCrop = ({ item, url, setCropForItem }) => {
 
 	const onUnsetCrop = () => {
 		croppingRef.current.removeCrop();
+		setCropForItem(item.id, null);
 	};
 
 	return (<CropperContainer>
@@ -222,95 +258,76 @@ const CropperForMultiCrop = ({ item, url, setCropForItem }) => {
 			ref={croppingRef}
 			url={url}
 			type={item.file.type}
+			name={item.file.name}
 			setCropped={setIsCropped}
-		/>
+			/>
 
 		<button onClick={onSaveCrop}>Set Crop</button>
 		<button onClick={onUnsetCrop}>Unset Crop</button>
 	</CropperContainer>);
 };
 
-const MultiCropContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
+const BatchCrop = withBatchStartUpdate((
+	{
+		id,
+		updateRequest,
+		requestData,
+		isUploadingInProgress
+	}) => {
 
-const PreviewsContainer = styled.div`
-  display: flex;
-  margin: 20px 0;
-	width: 100%;
-	justify-content: center;
-`;
-
-const BatchCrop = withBatchStartUpdate((props) => {
-	const { id, updateRequest, requestData, isUploadInProgress } = props;
-	const [selected, setSelected] = useState({ url: null, id: null });
+	const [selected, setSelected] = useState({ url: null, id: null});
 	const [finishedItems, setFinishedItems] = useState([]);
 	const [cropped, setCropped] = useState({});
 	const hasData = !!(id && requestData);
-	const selectedItem = !!selected && requestData?.items.find(({ id }) => id === selected.id);
-
-	const setCropForItem = (id, data) => {
-		setCropped((cropped) => ({ ...cropped, [id]: data }));
-	};
-
-	const onUploadAll = () => {
-		if (updateRequest) {
-			const readyItems = requestData.items
-				.map((item) => {
-					item.file = cropped[item.id] || item.file;
-					return item;
-				});
-
-			updateRequest({ items: readyItems });
-		}
-	};
+	const selectedItem = !!selected &&
+		requestData?.items.find(({ id }) => id === selected.id);
 
 	useItemFinalizeListener(({ id }) => {
 		setFinishedItems((finished) => finished.concat(id));
 	});
 
-	const getPreviewCompProps = useCallback((item) => {
-		return ({
-			onPreviewSelected: setSelected,
-			isCroppedSet: cropped[item.id],
-			isFinished: !!~finishedItems.indexOf(item.id),
-			isUploading: isUploadInProgress
-		});
-	}, [cropped, setSelected, finishedItems, isUploadInProgress]);
+	const getPreviewCompProps = useCallback((item) => ({
+		onPreviewSelected: setSelected,
+		isCroppedSet: !!cropped[item.id],
+		isFinished: finishedItems.includes(item.id),
+		isUploading: isUploadingInProgress,
+	}), [cropped, setSelected, finishedItems, isUploadingInProgress]);
 
-	return (<MultiCropContainer>
-		{hasData && !isUploadInProgress &&
-			<button onClick={onUploadAll} id="upload-all-btn">Upload All</button>}
+	const onUploadAll = () => {
+		const readyItems = requestData.items
+			.map((item) => {
+				item.file = cropped[item.id] || item.file;
+				return item;
+			});
 
-		<PreviewsContainer>
-			<UploadPreview
-				rememberPreviousBatches
-				PreviewComponent={ItemPreviewThumb}
-				previewComponentProps={getPreviewCompProps}
-			/>
-		</PreviewsContainer>
-		{selectedItem && hasData && !isUploadInProgress &&
-			<CropperForMultiCrop
-				{...selected}
-				item={selectedItem}
-				setCropForItem={setCropForItem}
-			/>}
-	</MultiCropContainer>);
+		updateRequest({ items: readyItems });
+	};
+
+	const setCropForItem = (id, data) => {
+		setCropped((cropped) => ({ ...cropped, [id]: data }));
+	};
+
+	return (
+		<MultiCropContainer>
+			{hasData && !isUploadingInProgress &&
+			<button onClick={onUploadAll}>Upload All</button>}
+
+			<PreviewsContainer>
+				<UploadPreview
+					rememberPreviousBatches
+					PreviewComponent={ItemPreviewThumb}
+					previewComponentProps={getPreviewCompProps} />
+			</PreviewsContainer>
+
+			{selectedItem && hasData && !isUploadingInProgress &&
+				<CropperForMultiCrop
+					{...selected}
+					item={selectedItem}
+					setCropForItem={setCropForItem}
+				/>}
+		</MultiCropContainer>
+	);
 });
-
-const QueueContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  button {
-    max-width: 300px;
-  }
-`;
 
 const MultiCropQueue = () => {
 	const [currentBatchId, setCurrentBatch] = useState(null);
@@ -320,23 +337,23 @@ const MultiCropQueue = () => {
 
 	const {
 		id: inProgressId,
-		completed: batchProgress,
-	} = useBatchProgressListener(currentBatchId) || { };
+		completed: batchProgress
+	} = useBatchProgressListener(currentBatchId) || {};
 
 	const isInProgress = !!inProgressId && inProgressId === currentBatchId;
 
 	return (
 		<QueueContainer>
 			{!!currentBatchId &&
-				<UploadProgress progress={isInProgress ? batchProgress : 0}/>}
+			<UploadProgress progress={isInProgress ? batchProgress : 0}/>}
 
 			{!currentBatchId &&
-				<UploadButton>Select Files</UploadButton>}
+			<UploadButton>Select Files</UploadButton>}
 
 			<BatchCrop
 				id={currentBatchId}
 				isUploadInProgress={isInProgress}
-			/>
+				/>
 		</QueueContainer>
 	);
 };
@@ -350,7 +367,6 @@ export const SecondTutorial = () => {
 };
 
 SecondTutorial.description = "Crop multiple images before uploading";
-
 
 export default {
 	title: "Tutorials/3. Advanced/1. Crop",
