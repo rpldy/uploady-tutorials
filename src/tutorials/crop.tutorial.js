@@ -11,8 +11,6 @@ import Uploady, {
 } from "@rpldy/uploady";
 import UploadButton from "@rpldy/upload-button";
 import UploadPreview from "@rpldy/upload-preview";
-import Cropper from "react-cropper";
-import "cropperjs/dist/cropper.css";
 import { Line } from "rc-progress";
 import UploadCropper from "../components/UploadCropper";
 
@@ -21,13 +19,6 @@ const SingleCropContainer = styled.div`
     display: flex;  
     flex-direction: column;
     align-items: center;
-`;
-
-const StyledCropper = styled(Cropper)`
-  width: 100%;
-  max-height: 400px;
-  height: auto;
-  margin: 20px 0;
 `;
 
 const PreviewImage = styled.img`
@@ -62,44 +53,29 @@ const ItemUploadProgress = memo(({ id, show = false }) => {
 const ItemPreviewWithCrop = withRequestPreSendUpdate(({
 	id,
 	url,
+	type,
+	name,
 	updateRequest,
 	requestData,
 }) => {
-
-	const cropperRef = useRef(null);
+	const croppingRef = useRef(null);
 	const [isCropped, setCropped] = useState(null);
 	const [croppedImg, setCroppedImg] = useState(null);
 
-	const onCropEnd = () => {
-		setCropped(true);
-	};
-
-	const onUpload = useCallback(() => {
-		const cropper = cropperRef.current.cropper;
-
-		cropper
-			.getCroppedCanvas()
-			.toBlob((blob) => {
-				blob.name = requestData.items[0].file.name;
-				requestData.items[0].file = blob;
-				updateRequest({ items: requestData.items })
-			}, requestData.items[0].file.type);
-
-		setCroppedImg(cropper.getCroppedCanvas().toDataURL());
+	const onUpload = useCallback(async () => {
+		requestData.items[0].file = await croppingRef.current.cropImage();
+		updateRequest({ items: requestData.items });
+		setCroppedImg(croppingRef.current.getDataUrl());
 	}, [requestData, updateRequest]);
 
 	return (<SingleCropContainer>
 		{!croppedImg ?
-			<StyledCropper
-				initialAspectRatio={16 / 9}
-				autoCrop={false}
-				background={false}
-				modal={false}
-				viewMode={1}
-				zoomable={false}
-				src={url}
-				cropend={onCropEnd}
-				ref={cropperRef}
+			<UploadCropper
+				ref={croppingRef}
+				url={url}
+				type={type}
+				name={name}
+				setCropped={setCropped}
 			/> :
 			<PreviewImage src={croppedImg} alt="cropped img to upload" />
 		}
@@ -124,6 +100,7 @@ export const FirstTutorial = () => {
 };
 
 FirstTutorial.description = "Crop single image before uploading";
+
 
 const QueueContainer = styled.div`
   display: flex;

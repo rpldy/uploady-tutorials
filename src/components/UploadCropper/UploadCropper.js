@@ -18,15 +18,22 @@ const cropImage = (cropper, type, name) =>
 			}, type);
 	});
 
-const UploadCropper = forwardRef(({ url, type, name }, ref) => {
+const UploadCropper = forwardRef(({ url, type, name, setCropped }, ref) => {
 	const cropperRef = useRef(null);
 
 	useImperativeHandle(ref, () => ({
 		cropImage: () => cropImage(cropperRef.current.cropper, type, name),
 		removeCrop: () => {
 			cropperRef.current.cropper.clear();
+			setCropped?.(false);
 		},
+		getDataUrl: () =>
+			cropperRef.current.cropper.getCroppedCanvas().toDataURL(),
 	}));
+
+	const onCropEnd = () => {
+		setCropped?.(true);
+	};
 
 	return <StyledCropper
 		src={url}
@@ -36,6 +43,7 @@ const UploadCropper = forwardRef(({ url, type, name }, ref) => {
 		modal={false}
 		viewMode={1}
 		zoomable={false}
+		cropend={onCropEnd}
 		ref={cropperRef}
 	/>;
 });
