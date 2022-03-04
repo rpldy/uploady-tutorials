@@ -14,10 +14,11 @@
     "lint:nocache": "eslint ./src"
   },
   "dependencies": {
-    "@rpldy/upload-button": "^0.16.1",
-    "@rpldy/upload-drop-zone": "^0.16.1",
-    "@rpldy/upload-preview": "^0.16.1",
-    "@rpldy/uploady": "^0.16.1",
+    "@rpldy/tus-uploady": "^0.17.5",
+    "@rpldy/upload-button": "^0.17.5",
+    "@rpldy/upload-drop-zone": "^0.17.5",
+    "@rpldy/upload-preview": "^0.17.5",
+    "@rpldy/uploady": "^0.17.5",
     "framer-motion": "^4.1.17",
     "lodash": "^4.17.21",
     "polished": "^4.1.3",
