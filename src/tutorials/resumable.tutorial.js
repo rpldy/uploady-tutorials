@@ -11,13 +11,14 @@ export const FirstTutorial = () => {
 			debug
 			destination={{ url: "http://localhost:4000/upload" }}
 			chunkSize={1e+6}
-		>
-			<UploadButton>Upload With Resumable</UploadButton>
-			<ItemProgress/>
-		</TusUploady>);
+			>
+			<UploadButton>Upload with Resumable</UploadButton>
+			<ItemProgress />
+		</TusUploady>
+	);
 };
 
-FirstTutorial.description = "Resumable upload with Tus";
+FirstTutorial.description = "Resumable uploads with Tus Protocol";
 
 export const SecondTutorial = () => {
 	return (
@@ -28,18 +29,19 @@ export const SecondTutorial = () => {
 			sendDataOnCreate
 			parallel={2}
 		>
-			<UploadButton>Upload With Resumable</UploadButton>
-			<ItemProgress/>
-		</TusUploady>);
+			<UploadButton>Upload with Resumable</UploadButton>
+			<ItemProgress />
+		</TusUploady>
+	);
 };
 
-SecondTutorial.description = "Resumable with Tus Creation With Upload"
+SecondTutorial.description = "Resumable with Tus Creation on Upload";
 
 const ClearResumableButton = () => {
-	const clearResumable = useClearResumableStore();
+	const clearResumables = useClearResumableStore();
 
 	const onClick = () => {
-		clearResumable();
+		clearResumables();
 		console.log("store cleared");
 	};
 
@@ -53,10 +55,11 @@ export const ThirdTutorial = () => {
 			destination={{ url: "http://localhost:4000/upload" }}
 			chunkSize={1e+6}
 		>
-			<UploadButton>Upload With Resumable</UploadButton>
-			<ItemProgress/>
+			<UploadButton>Upload with Resumable</UploadButton>
+			<ItemProgress />
 			<ClearResumableButton/>
-		</TusUploady>);
+		</TusUploady>
+	);
 };
 
 ThirdTutorial.description = "Clear resumable store";
